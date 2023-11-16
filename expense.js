@@ -4,10 +4,10 @@ function addExpense(e) {
   e.preventDefault();
   const amount = document.getElementById("amount").value;
   const description = document.getElementById("description").value;
+  const category = document.getElementById("categories").value;
   if (amount.trim() === "" || description.trim() === "") {
     alert("Please Enter Valid Text and Amount");
   } else {
-    const category = document.getElementById("categories").value;
     var obj = {
       Amount: amount,
       Description: description,
@@ -15,7 +15,7 @@ function addExpense(e) {
     };
     axios
       .post(
-        "https://crudcrud.com/api/f35fff80a8324aba8c8ddcc310e87368/expense-tracker",
+        "https://crudcrud.com/api/bf4fb13dc7ee49b98d8de2eb267b4e1b/expense-tracker",
         obj
       )
       .then(function (value) {
@@ -29,20 +29,42 @@ function addExpense(e) {
     newElement.className = "fs-5";
     newElement.innerHTML = `${description}  ${amount}  ${category}  `;
     component.appendChild(newElement);
-    const newBtn = document.createElement("button");
+    const deleteBtn = document.createElement("button");
     const editBtn = document.createElement("button");
-    newBtn.className = "btn btn-danger";
+    deleteBtn.className = "btn btn-danger";
     editBtn.className = "btn btn-secondary";
-    newBtn.textContent = "Del";
+    deleteBtn.textContent = "Del";
     editBtn.textContent = "Edit";
-    newBtn.onclick = () => {
+    deleteBtn.onclick = () => {
       deleteUser(newElement.id);
     };
-    editBtn.setAttribute("onclick", "edit(this)");
-    newElement.appendChild(newBtn);
+    editBtn.onclick = () => {
+      editUser(newElement.id);
+    };
+    newElement.appendChild(deleteBtn);
     newElement.appendChild(editBtn);
   }
   clearInputs();
+}
+function editUser(id) {
+   
+  axios
+    .get(
+        `https://crudcrud.com/api/bf4fb13dc7ee49b98d8de2eb267b4e1b/expense-tracker/${id}`
+    )
+    .then(function (resolve) {
+     
+      const amount = resolve.data.Amount;
+      const description = resolve.data.Description;
+      document.getElementById("amount").value = amount;
+      document.getElementById("description").value = description;
+      deleteUser(id);
+      
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    
 }
 function clearInputs() {
   document.getElementById("amount").value = "";
@@ -54,7 +76,7 @@ window.addEventListener("DOMContentLoaded", function () {
 function deleteUser(id) {
   axios
     .delete(
-      `https://crudcrud.com/api/f35fff80a8324aba8c8ddcc310e87368/expense-tracker/${id}`
+      `https://crudcrud.com/api/bf4fb13dc7ee49b98d8de2eb267b4e1b/expense-tracker/${id}`
     )
     .then(function () {
       console.log("deleted");
@@ -66,7 +88,7 @@ function deleteUser(id) {
 function displaySavedData() {
   axios
     .get(
-      "https://crudcrud.com/api/f35fff80a8324aba8c8ddcc310e87368/expense-tracker"
+      "https://crudcrud.com/api/bf4fb13dc7ee49b98d8de2eb267b4e1b/expense-tracker"
     )
     .then(function (response) {
       const arr = response.data;
@@ -80,18 +102,20 @@ function displaySavedData() {
         newElement.className = "fs-5";
         newElement.innerHTML = `${description}  ${amount} ${category}  `;
         component.appendChild(newElement);
-        const newBtn = document.createElement("button");
+        const deleteBtn = document.createElement("button");
         const editBtn = document.createElement("button");
-        newBtn.className = "btn btn-danger";
+        deleteBtn.className = "btn btn-danger";
         editBtn.className = "btn btn-secondary";
-        newBtn.textContent = "Del";
+        deleteBtn.textContent = "Del";
         editBtn.textContent = "Edit";
         newElement.id = userId;
-        newBtn.onclick = () => {
+        deleteBtn.onclick = () => {
           deleteUser(newElement.id);
         };
-        editBtn.setAttribute("onclick", "edit(this)");
-        newElement.appendChild(newBtn);
+        editBtn.onclick = () => {
+          editUser(newElement.id);
+        };
+        newElement.appendChild(deleteBtn);
         newElement.appendChild(editBtn);
       }
     })
